@@ -21,6 +21,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.cartChangedSub = this.shopStateService.cartChanged.subscribe(cartData => this.cartData = cartData);
+        this.shopStateService.addToCart(this.products[0].productId); //TESTING
     }
 
     ngOnDestroy() {

@@ -1,3 +1,7 @@
+:host {
+    overflow: hidden;
+}
+
 /*
     CART VIEW
 */
@@ -5,9 +9,42 @@
     float:left;
     width: 30%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cart-item-list {
+    flex: 1 1 0;
+    overflow-y:auto;
 }
 
 .cart-item {
-    height: 80px;
+    height: 100px;
     width:100%;
+    background-color: lightgray;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.mini-buttons {
+    width:30px;
+}
+
+.item-info h1 {
+    font-size: 1.4em;
+}
+.item-info h2 {
+    font-size: 1.2em;
+}
+
+.item-total h2 {
+    font-size: 1.3em;
+}
+
+.checkout-button {
+    width: 100%;
 }

@@ -2,6 +2,7 @@
     width:100%;
     height:100%;
     display:block;
+    overflow:hidden;
 }
 
 /*
@@ -12,11 +13,12 @@
     float:left;
     width:70%;
     height: 100%;
-    background-color:red;
+    background-color: rgba(211, 211, 211, 0.562);
     display:grid;
     padding: 20px;
     grid-template-columns: auto auto auto auto;
     grid-template-rows: min-content;
+    overflow-y:auto;
 }
 
 .product {
@@ -29,6 +31,9 @@
 
 .product:hover .product-add-hover-over {
     opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 .product:active .product-add-hover-over {
@@ -50,6 +55,7 @@
     height: 200px;
     border: 1px solid lightgray;
     background-size: contain;
+    position: relative;
 }
 
 .product-add-hover-over {
