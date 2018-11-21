@@ -1,0 +1,33 @@
+<!-- Product View -->
+<div class="product-view">
+    <div class="product" *ngFor="let product of products" (click)="productClicked(product)">
+        <div [style.backgroundImage]="'url(' + product.imageUrl + ')'" class="product-image">
+            <div class="product-add-hover-over">+</div>
+        </div>
+
+        <h2>{{product.name}}</h2>
+        <h3>${{product.price}}</h3>
+    </div>
+</div>
+
+<!-- Cart View -->
+<div class="cart-view">
+    <div class="cart-item" *ngFor="let cartItem of cartItems">
+        <div class="item-info">
+            <h1>{{cartItem.name}}</h1>
+            <h2>{{cartItem.quantity}}</h2>
+        </div>
+        <div class="item-total">
+            {{cartItem.total}}
+        </div>
+        <div class="item-actions">
+            <div class="item-actions-inc-dec">
+                <button (click)="cartMinusClicked(cartItem)">-</button>
+                <button (click)="cartPlusClicked(cartItem)">+</button>
+            </div>
+            <button (click)="cartRemoveClicked(cartItem)">Delete</button>
+        </div>
+
+        <button (click)="checkoutClicked(cartItem)">Checkout</button>
+    </div>
+</div>
