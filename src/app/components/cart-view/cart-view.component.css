@@ -6,8 +6,6 @@
     CART VIEW
 */
 .cart-view {
-    float:left;
-    width: 30%;
     height: 100%;
     display: flex;
     flex-direction: column;

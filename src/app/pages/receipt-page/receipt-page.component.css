@@ -1,0 +1,14 @@
+:host {
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow:hidden;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+cart-view {
+    height: 100%;
+    width: 600px;
+}

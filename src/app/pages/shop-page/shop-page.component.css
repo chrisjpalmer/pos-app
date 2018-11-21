@@ -72,3 +72,10 @@
     font-size:60px;
     color:rgb(83, 83, 83);
 }
+
+/**CART VIEW*/
+cart-view {
+    width:30%;
+    height:100%;
+    float:left;
+}
