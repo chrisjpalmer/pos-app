@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
+import { ShopPaymentService } from "./shop.payment.service";
+import { Product, Cart, ProductId, Receipt } from "./shop.class";
 
 const sampleProducts:Product[] = [
     {
@@ -34,9 +36,6 @@ const sampleProducts:Product[] = [
     }
 ];
 
-
-export type ProductId = number;
-
 export interface CartItem {
     productId: number;
     imageUrl: string;
@@ -45,32 +44,23 @@ export interface CartItem {
     total: number;
 }
 
-export interface Product {
-    productId: ProductId;
-    imageUrl: string;
-    name: string;
-    price: number;
-}
-
-export interface CartRecord {
-    product: Product;
-    quantity: number;
-}
-
 @Injectable({
     providedIn: 'root',
 })
 export class ShopStateService {
     //PRIVATE VARIABLES
-    private cartRecords: Map<ProductId, CartRecord>;
+    private cart:Cart;
     private _cartItems: CartItem[];
+    private _total:number;
+    private _lastReceipt:Receipt;
     
     products: Product[];
     cartChanged:BehaviorSubject<CartItem[]>;
 
-    constructor() {
+    constructor(private shopPaymentService:ShopPaymentService) {
         this.products = sampleProducts;
-        this.cartRecords = new Map();
+        this.cart = new Cart();
+
         this._cartItems = [];
         this.cartChanged = new BehaviorSubject<CartItem[]>(this._cartItems)
     }
@@ -80,52 +70,44 @@ export class ShopStateService {
         return this._cartItems;
     }
 
-    addToCart(productId: number) {
-        //Does this cart have this product yet? If not... add it
-        if (!this.cartRecords.has(productId)) {
-            this.cartRecords.set(productId, {
-                quantity: 0,
-                product: this.products.find(p => p.productId === productId)
-            });
-        }
-
-        //Increase quantity by one in every case
-        this.cartRecords.get(productId).quantity++;
-
-        //We know the cart has changed, so reevaluate the cart display
-        this.reevaluateCartItems();
+    get total(): number {
+        return this._total;
     }
 
-    removeFromCart(productId: number) {
-        if (!this.cartRecords.has(productId)) {
-            console.log('Tried to delete a product that doesnt exist... please check!')
-            return; //Defensive programming here...
-        }
-
-        let cartEntry = this.cartRecords.get(productId);
-        if (cartEntry.quantity === 1) {
-            //Completely delete the product from the cart
-            console.log("This shouldn't happen... we disable the '-' button when quantity is 1")
-            this.cartRecords.delete(productId);
-        } else {
-            //Decrement the quantity
-            cartEntry.quantity--;
-        }
-
-        //We know the cart has changed, so reevaluate the cart display
-        this.reevaluateCartItems();
+    get lastReceipt():Receipt {
+        return this._lastReceipt;
     }
 
-    completelyRemoveFromCart(productId: number) {
-        if (!this.cartRecords.has(productId)) {
-            console.log('Tried to delete a product that doesnt exist... please check!')
-            return; //Defensive programming here...
-        }
-
-        this.cartRecords.delete(productId);
+    addToCart(productId: ProductId) {
+        this.cart.addToCart(this.products.find(p => p.productId === productId));
 
         //We know the cart has changed, so reevaluate the cart display
-        this.reevaluateCartItems();
+        this.evaluateCart();
+    }
+
+    removeFromCart(productId: ProductId) {
+        this.cart.addToCart(this.products.find(p => p.productId === productId));
+
+        //We know the cart has changed, so reevaluate the cart display
+        this.evaluateCart();
+    }
+
+    completelyRemoveFromCart(productId: ProductId) {
+        this.cart.removeFromCart(this.products.find(p => p.productId === productId));
+
+        //We know the cart has changed, so reevaluate the cart display
+        this.evaluateCart();
+    }
+
+    async commitToPayment() : Promise<void> {
+        await this.shopPaymentService.requestPaymentForCart(this.cart);
+
+        //Success!
+        let receipt = new Receipt(this.cart);
+        this.cart = new Cart();
+
+        this._lastReceipt = receipt;
+        this.evaluateCart();
     }
 
 
@@ -133,9 +115,10 @@ export class ShopStateService {
     //----------------- Re-evaluate cart --------------
     //-------------------------------------------------
 
-    private reevaluateCartItems() {
-        let cartItems: CartItem[] = [];
-        this.cartRecords.forEach(entry => {
+    private evaluateCart() {
+        //Build the cart items
+        let cartRecords = this.cart.getCartRecords();
+        let cartItems = cartRecords.map(entry => {
             let cartItem: CartItem = {
                 productId: entry.product.productId,
                 imageUrl: entry.product.imageUrl,
@@ -143,10 +126,8 @@ export class ShopStateService {
                 quantity: entry.quantity,
                 total: entry.quantity * entry.product.price,
             }
-            cartItems.push(cartItem);
+            return cartItem
         });
-
-        //Sort alphabetically
         cartItems = cartItems.sort((a, b) => {
             if (a.name < b.name) {
                 return -1;
@@ -157,6 +138,10 @@ export class ShopStateService {
             return 0;
         });
 
+        //Build the total
+        this._total = this.cart.getTotal();
+
+        //Update any listeners
         this._cartItems = cartItems;
         this.cartChanged.next(this._cartItems);
     }

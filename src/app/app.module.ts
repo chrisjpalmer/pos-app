@@ -21,10 +21,9 @@ import { ReceiptPageComponent } from './pages/receipt-page/receipt-page.componen
           redirectTo: '/shop',
           pathMatch: 'full'
         },
-        { path: '**', redirectTo: '/shop' },
         { path: 'shop', component: ShopPageComponent },
         { path: 'receipt', component: ReceiptPageComponent },
-      ]
+      ],{enableTracing: true}
     )
   ],
   providers: [

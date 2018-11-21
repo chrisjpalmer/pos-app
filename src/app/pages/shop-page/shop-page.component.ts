@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { ShopStateService, Product, CartItem } from "../../services";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'shop-page',
@@ -11,7 +12,7 @@ export class ShopPageComponent {
     cartItems:CartItem[];
 
 
-    constructor(private shopStateService:ShopStateService) {
+    constructor(private shopStateService:ShopStateService, private router:Router) {
         //We get the full list of products from ShopStateService
         this.products = this.shopStateService.products;
 
@@ -36,7 +37,9 @@ export class ShopPageComponent {
         this.shopStateService.addToCart(product.productId);
     }
 
-    checkoutClicked() {
-
+    async checkoutClicked() {
+        await this.shopStateService.commitToPayment();
+        
+        this.router.navigate(['/receipt']);
     }
 }
