@@ -43,6 +43,9 @@
     font-size: 1.3em;
 }
 
+.cart-summary h4 {
+    text-align: center;
+}
 .checkout-button {
     width: 100%;
 }

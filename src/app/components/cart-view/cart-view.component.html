@@ -16,5 +16,8 @@
 
     </div>
   </div>
-  <button class="checkout-button" *ngIf="isLiveCart" (click)="checkoutClicked()">Checkout</button>
+  <div class="cart-summary">
+    <h4>Total ${{cartData.total}}</h4>
+    <button class="checkout-button" *ngIf="isLiveCart" (click)="checkoutClicked()">Checkout</button>
+</div>
 </div>
