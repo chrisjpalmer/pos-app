@@ -1,45 +1,51 @@
-import { Component } from "@angular/core";
-import { ShopStateService, Product, CartItem } from "../../services";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ShopStateService, Product, CartRecord, CartData } from "../../services";
 import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'shop-page',
     templateUrl: './shop-page.component.html',
     styleUrls: ['./shop-page.component.css']
 })
-export class ShopPageComponent {
-    products:Product[];
-    cartItems:CartItem[];
+export class ShopPageComponent implements OnInit, OnDestroy {
+    products: Product[];
+    cartData:CartData;
+    private cartChangedSub:Subscription;
 
 
-    constructor(private shopStateService:ShopStateService, private router:Router) {
+    constructor(private shopStateService: ShopStateService, private router: Router) {
         //We get the full list of products from ShopStateService
         this.products = this.shopStateService.products;
-
-        //This is nice because we might one day choose to siphon off the cart display functionality into a standard component.
-        //In which case it could subscribe to shopStateService and be kept up to date with the cart.
-        this.shopStateService.cartChanged.subscribe(cartItems => this.cartItems = cartItems);
     }
 
-    cartRemoveClicked(cartItem:CartItem) {
-        this.shopStateService.completelyRemoveFromCart(cartItem.productId);
+    ngOnInit() {
+        this.cartChangedSub = this.shopStateService.cartChanged.subscribe(cartData => this.cartData = cartData);
     }
 
-    cartMinusClicked(cartItem:CartItem) {
-        this.shopStateService.removeFromCart(cartItem.productId);
+    ngOnDestroy() {
+        this.cartChangedSub.unsubscribe();
     }
 
-    cartPlusClicked(cartItem:CartItem) {
-        this.shopStateService.addToCart(cartItem.productId);
-    }
-
-    productClicked(product:Product) {
+    productClicked(product: Product) {
         this.shopStateService.addToCart(product.productId);
+    }
+
+    cartRemoveClicked(cartRecord: CartRecord) {
+        this.shopStateService.completelyRemoveFromCart(cartRecord.product.productId);
+    }
+
+    cartMinusClicked(cartRecord: CartRecord) {
+        this.shopStateService.removeFromCart(cartRecord.product.productId);
+    }
+
+    cartPlusClicked(cartRecord: CartRecord) {
+        this.shopStateService.addToCart(cartRecord.product.productId);
     }
 
     async checkoutClicked() {
         await this.shopStateService.commitToPayment();
-        
+
         this.router.navigate(['/receipt']);
     }
 }

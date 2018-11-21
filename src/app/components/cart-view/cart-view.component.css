@@ -1,0 +1,13 @@
+/*
+    CART VIEW
+*/
+.cart-view {
+    float:left;
+    width: 30%;
+    height: 100%;
+}
+
+.cart-item {
+    height: 80px;
+    width:100%;
+}

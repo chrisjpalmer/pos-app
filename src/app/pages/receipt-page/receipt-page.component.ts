@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ShopStateService, Receipt } from '../../services';
+import { ShopStateService, Receipt, CartData } from '../../services';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,7 +9,8 @@ import { Router } from '@angular/router';
 })
 export class ReceiptPageComponent implements OnInit {
 
-  private receipt:Receipt;
+  receipt:Receipt;
+  cartData:CartData;
 
   constructor(private shopStateService:ShopStateService, private router:Router) { }
 
@@ -22,6 +23,7 @@ export class ReceiptPageComponent implements OnInit {
       return;
     }
     this.receipt = receipt;
+    this.cartData = this.receipt.getCartData();
   }
 
 }

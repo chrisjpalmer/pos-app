@@ -24,7 +24,7 @@ export class ShopPaymentService {
 
     requestPaymentForCart(cart:Cart) : Promise <void> {
         //Get the cart total
-        let total = cart.getTotal();
+        let { total } = cart.getCartData();
 
         //Form the request and send
         let request:PaymentRequest = {

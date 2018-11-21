@@ -11,23 +11,9 @@
 </div>
 
 <!-- Cart View -->
-<div class="cart-view">
-    <div class="cart-item" *ngFor="let cartItem of cartItems">
-        <div class="item-info">
-            <h1>{{cartItem.name}}</h1>
-            <h2>{{cartItem.quantity}}</h2>
-        </div>
-        <div class="item-total">
-            {{cartItem.total}}
-        </div>
-        <div class="item-actions">
-            <div class="item-actions-inc-dec">
-                <button (click)="cartMinusClicked(cartItem)">-</button>
-                <button (click)="cartPlusClicked(cartItem)">+</button>
-            </div>
-            <button (click)="cartRemoveClicked(cartItem)">Delete</button>
-        </div>
-
-        <button (click)="checkoutClicked(cartItem)">Checkout</button>
-    </div>
-</div>
+<cart-view [isLiveCart]="true"
+    [cartData]="cartData"
+     (cartPlusClick)="cartPlusClicked($event)"
+    (cartMinusClick)="cartMinusClicked($event)" 
+    (cartRemoveClick)="cartRemoveClicked($event)"
+    (checkoutClick)="checkoutClicked()"></cart-view>

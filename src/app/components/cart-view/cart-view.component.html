@@ -1,0 +1,20 @@
+<div class="cart-view">
+  <div class="cart-item" *ngFor="let cartRecord of cartData.cartRecords">
+      <div class="item-info">
+          <h1>{{cartRecord.product.name}}</h1>
+          <h2>{{cartRecord.quantity}}</h2>
+      </div>
+      <div class="item-total">
+          ${{cartRecord.getTotal()}}
+      </div>
+      <div class="item-actions">
+          <div class="item-actions-inc-dec">
+              <button *ngIf="isLiveCart" [disabled]="cartRecord.quantity === 1" (click)="cartMinusClicked(cartRecord)">-</button>
+              <button *ngIf="isLiveCart" (click)="cartPlusClicked(cartRecord)">+</button>
+          </div>
+          <button *ngIf="isLiveCart" (click)="cartRemoveClicked(cartRecord)">Delete</button>
+      </div>
+
+      <button *ngIf="isLiveCart" (click)="checkoutClicked()">Checkout</button>
+  </div>
+</div>

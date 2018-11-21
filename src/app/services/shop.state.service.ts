@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { ShopPaymentService } from "./shop.payment.service";
-import { Product, Cart, ProductId, Receipt } from "./shop.class";
+import { Product, Cart, ProductId, Receipt, CartData } from "./shop.class";
 
 const sampleProducts:Product[] = [
     {
@@ -36,113 +36,59 @@ const sampleProducts:Product[] = [
     }
 ];
 
-export interface CartItem {
-    productId: number;
-    imageUrl: string;
-    name: string;
-    quantity: number;
-    total: number;
-}
-
 @Injectable({
     providedIn: 'root',
 })
 export class ShopStateService {
     //PRIVATE VARIABLES
     private cart:Cart;
-    private _cartItems: CartItem[];
-    private _total:number;
     private _lastReceipt:Receipt;
     
     products: Product[];
-    cartChanged:BehaviorSubject<CartItem[]>;
+    cartChanged:BehaviorSubject<CartData>;
 
     constructor(private shopPaymentService:ShopPaymentService) {
         this.products = sampleProducts;
         this.cart = new Cart();
 
-        this._cartItems = [];
-        this.cartChanged = new BehaviorSubject<CartItem[]>(this._cartItems)
+        this.cartChanged = new BehaviorSubject<CartData>(this.cart.getCartData())
     }
 
     //PUBLIC API
-    get cartItems(): CartItem[] {
-        return this._cartItems;
-    }
-
-    get total(): number {
-        return this._total;
-    }
-
     get lastReceipt():Receipt {
         return this._lastReceipt;
     }
 
     addToCart(productId: ProductId) {
         this.cart.addToCart(this.products.find(p => p.productId === productId));
-
-        //We know the cart has changed, so reevaluate the cart display
-        this.evaluateCart();
+        this.emitCartChanged(); //Alert that the cart has changed.
     }
 
     removeFromCart(productId: ProductId) {
-        this.cart.addToCart(this.products.find(p => p.productId === productId));
-
-        //We know the cart has changed, so reevaluate the cart display
-        this.evaluateCart();
+        this.cart.removeFromCart(this.products.find(p => p.productId === productId));
+        this.emitCartChanged(); //Alert that the cart has changed.
     }
 
     completelyRemoveFromCart(productId: ProductId) {
-        this.cart.removeFromCart(this.products.find(p => p.productId === productId));
-
-        //We know the cart has changed, so reevaluate the cart display
-        this.evaluateCart();
+        this.cart.completelyRemoveFromCart(this.products.find(p => p.productId === productId));
+        this.emitCartChanged(); //Alert that the cart has changed.
     }
 
     async commitToPayment() : Promise<void> {
+        //Send the cart to the payment terminal
         await this.shopPaymentService.requestPaymentForCart(this.cart);
 
-        //Success!
+        //Upon payment success generate a receipt for this cart and store
         let receipt = new Receipt(this.cart);
+        this._lastReceipt = receipt;
+
+        //Create a brand new cart
         this.cart = new Cart();
 
-        this._lastReceipt = receipt;
-        this.evaluateCart();
+        this.emitCartChanged(); //Alert that the cart has changed.
     }
 
-
-    //-------------------------------------------------
-    //----------------- Re-evaluate cart --------------
-    //-------------------------------------------------
-
-    private evaluateCart() {
-        //Build the cart items
-        let cartRecords = this.cart.getCartRecords();
-        let cartItems = cartRecords.map(entry => {
-            let cartItem: CartItem = {
-                productId: entry.product.productId,
-                imageUrl: entry.product.imageUrl,
-                name: entry.product.name,
-                quantity: entry.quantity,
-                total: entry.quantity * entry.product.price,
-            }
-            return cartItem
-        });
-        cartItems = cartItems.sort((a, b) => {
-            if (a.name < b.name) {
-                return -1;
-            } else if (b.name < a.name) {
-                return 1;
-            }
-
-            return 0;
-        });
-
-        //Build the total
-        this._total = this.cart.getTotal();
-
-        //Update any listeners
-        this._cartItems = cartItems;
-        this.cartChanged.next(this._cartItems);
+    emitCartChanged() {
+        this.cartChanged.next(this.cart.getCartData())
     }
 }

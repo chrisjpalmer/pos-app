@@ -7,21 +7,38 @@ export interface Product {
     price: number;
 }
 
-export interface CartRecord {
-    product: Product;
-    quantity: number;
+export class CartRecord {
+    constructor(public product: Product) {};
+    quantity: number = 0;
+
+    getTotal() {
+        return this.product.price * this.quantity;
+    }
+}
+
+export interface CartData {
+    cartRecords:CartRecord[];
+    total:number;
+}
+
+export class Receipt {
+    timestamp:Date;
+    constructor(private cart:Cart) {
+        this.timestamp = new Date();
+    }
+
+    getCartData() {
+        return this.cart.getCartData();
+    }
 }
 
 export class Cart {
-    cartRecords: Map<ProductId, CartRecord> = new Map();
+    private cartRecords: Map<ProductId, CartRecord> = new Map();
 
     addToCart(product:Product) {
         //Does this cart have this product yet? If not... add it
         if (!this.cartRecords.has(product.productId)) {
-            this.cartRecords.set(product.productId, {
-                quantity: 0,
-                product: product
-            });
+            this.cartRecords.set(product.productId, new CartRecord(product));
         }
 
         //Increase quantity by one in every case
@@ -54,24 +71,34 @@ export class Cart {
         this.cartRecords.delete(product.productId);
     }
 
-    getTotal() {
+    getCartData() {
+        let cartData:CartData = {
+            total: this.getTotal(),
+            cartRecords: this.getCartRecords(),
+        }
+        return cartData;
+    }
+
+    private getTotal() {
         let total = 0;
         this.cartRecords.forEach(record => {
-            total += record.quantity * record.product.price;
+            total += record.getTotal();
         });
         return total;
     }
 
-    getCartRecords() {
+    private getCartRecords() {
         let records:CartRecord[] = [];
         this.cartRecords.forEach(record => records.push(record));
-        return records;
-    }
-}
+        records = records.sort((a, b) => {
+            if (a.product.name < b.product.name) {
+                return -1;
+            } else if (b.product.name < a.product.name) {
+                return 1;
+            }
 
-export class Receipt {
-    timestamp:Date;
-    constructor(public cart:Cart) {
-        this.timestamp = new Date();
+            return 0;
+        });
+        return records
     }
 }
