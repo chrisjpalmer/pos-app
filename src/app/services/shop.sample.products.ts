@@ -1,5 +1,8 @@
 import { Product } from "./shop.class";
 
+/**
+ * Sample dummy data of valuable tottenham hotspur merchandise.
+ */
 export const SampleProducts:Product[] = [
     {
         productId: 1,

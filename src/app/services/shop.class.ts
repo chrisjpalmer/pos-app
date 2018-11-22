@@ -1,5 +1,12 @@
+
+/**
+ * Define product id as a number
+ */
 export type ProductId = number;
 
+/**
+ * Defines a product that can be purchased
+ */
 export interface Product {
     productId: ProductId;
     imageUrl: string;
@@ -7,6 +14,9 @@ export interface Product {
     price: number;
 }
 
+/**
+ * Associates the Product with a Quantity the getTotal() method
+ */
 export class CartRecord {
     constructor(public product: Product) {};
     quantity: number = 0;
@@ -16,22 +26,35 @@ export class CartRecord {
     }
 }
 
+/**
+ * Controllers do not interact with the Cart directly..., however they can obtain information about it through this class
+ */
 export interface CartData {
     cartRecords:CartRecord[];
     total:number;
 }
 
+/**
+ * Wraps a Cart and associates it with a timestamp at which the purchase was made for the cart.
+ */
 export class Receipt {
     timestamp:Date;
     constructor(private cart:Cart) {
         this.timestamp = new Date();
     }
 
+    /**
+     * Expose information about the cart without exposing the cart
+     */
     getCartData() {
         return this.cart.getCartData();
     }
 }
 
+/**
+ * Models a shopping cart. This class contains service methods for adding, removing and deleting things from the cart.
+ * The cart should only be interacted by service layer.
+ */
 export class Cart {
     private cartRecords: Map<ProductId, CartRecord> = new Map();
 
