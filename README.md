@@ -2,8 +2,8 @@
 
 To get started do the following:
 ```bash
-git clone https://github.com/chrisjpalmer/weatherservice
-cd weatherservice
+git clone https://github.com/chrisjpalmer/pos-app
+cd pos-app
 npm install
 npm install -g @angular/cli
 ng serve
