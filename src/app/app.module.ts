@@ -25,7 +25,7 @@ import { CartViewComponent } from './components/cart-view/cart-view.component';
         },
         { path: 'shop', component: ShopPageComponent },
         { path: 'receipt', component: ReceiptPageComponent },
-      ],{enableTracing: true}
+      ],{enableTracing: false}
     )
   ],
   providers: [
